@@ -27,7 +27,7 @@ class Graf
         return tab;
     }
 };
-
+/* Alokowanie pamieci na macierz i wyzerowanie macierzy */
 Graf::Graf(int V)
 {
     value_V = V;
@@ -70,35 +70,35 @@ void Graf::Stworz_Graf(int index)
     switch (index)
     {
     case 0:
-        value_E = value_V * (value_V-1) / 2;
+        value_E = value_V * (value_V - 1) / 2;
         break;
     case 1:
-        value_E = value_V * (value_V-1) * 3 / 8;
+        value_E = value_V * (value_V - 1) * 3 / 8;
         break;
     case 2:
-        value_E = value_V * (value_V-1) / 4;
+        value_E = value_V * (value_V - 1) / 4;
         break;
     case 3:
-        value_E = value_V * (value_V-1) / 8;
+        value_E = value_V * (value_V - 1) / 8;
         break;
     default:
         break;
     }
-    E = value_E;
+    E = value_E;                                /// Ilosc krawedzi wyznaczona z gestosci
     while (E > 0)
     {
-        k = rand() % value_V;
-        l = rand() % value_V;
-        if(l<k)
+        k = rand() % value_V;                   /// Losowanie miejsca na krawedz
+        l = rand() % value_V;       
+        if (l < k)
         {
-        if (tab[l][k] == 0)
-        {
-            tab[l][k] = 1;
-           E--;
-        }
+            if (tab[l][k] == 0)
+            {
+                tab[l][k] = 1;                  /// Tutaj mozna ustawic wagi
+                E--;
+            }
         }
     }
-    for (int i = 0; i < value_V; i++)
+    for (int i = 0; i < value_V; i++)           /// Tworzenie macierzy symetrycznej
     {
         for (int j = 0; j < i; j++)
         {
@@ -119,7 +119,7 @@ std::ostream &operator<<(std::ostream &stream, Graf &G)
          << endl;
     for (int i = 0; i < G.Get_value_V(); i++)
     {
-        cout << setw(2) << i<<"|";
+        cout << setw(2) << i << "|";
         for (int j = 0; j < G.Get_value_V(); j++)
         {
             cout << setw(3) << (int)G.Get_tab()[i][j];
@@ -129,5 +129,7 @@ std::ostream &operator<<(std::ostream &stream, Graf &G)
     cout << endl;
     cout << "Ilosc wierzchołkow:  " << G.Get_value_V() << endl;
     cout << "Ilosc krawedzi:      " << G.Get_value_E() << endl;
+    cout << endl;
+
     return stream;
 }
