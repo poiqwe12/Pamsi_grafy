@@ -15,18 +15,20 @@ int main()
     //         cout << G;
     //     }
     // }
+    {
     Lista<int> a;
     for (int i = 0; i < 10; ++i)
     {
-        a.Dodaj_Element(i, 0);
+        a.Dodaj_Element(i,0);
         a.Show();
         cout<<endl;
     }
-     for (int i = 0; i < 45; ++i)
+     for (int i = 9; i > 0; --i)
     {
-        a.Usun_Element(0);
+        a.Usun_Element(i);
         a.Show();
         cout<<endl;
+    }
     }
     return 0;
 }

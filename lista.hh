@@ -63,14 +63,21 @@ Lista<Typ>::Lista()
 template <typename Typ>
 Lista<Typ>::~Lista()
 {
+    for(int i = Ile;i>0;--i)
+    {
+        Usun_Element(0);
+    }
 }
 
 /*  Dodawanie elementów  */
 template <typename Typ>
 void Lista<Typ>::Dodaj_Element(Typ T, int nr)
 {
+    Element<Typ> *el = Start;
     Element<Typ> *nowy_el = new Element<Typ>();
     nowy_el->Set_Zawartosc(T);
+    if(nr==0)
+    {
     nowy_el->Set_Poprzedni(NULL);
     nowy_el->Set_Nastepmny(Start);
     if (Start != NULL)
@@ -78,7 +85,31 @@ void Lista<Typ>::Dodaj_Element(Typ T, int nr)
         Start->Set_Poprzedni(nowy_el);
     }
     Start = nowy_el;
+    }
+    else
+    {
+        if (nr > Ile)
+        {
+            cout << " za duzy nr do dodania \n";
+        }
+        else
+        {
+            for (int i = nr-1; i > 0; --i)
+            {
+                el = el->Get_Nastepny();
+            }
+            nowy_el->Set_Poprzedni(el);
+            nowy_el->Set_Nastepmny(el->Get_Nastepny());
+            if(el->Get_Nastepny()!=NULL)
+            {
+                el->Get_Nastepny()->Set_Poprzedni(nowy_el);
+            }
+            el->Set_Nastepmny(nowy_el);
+        }
+
+    }
     ++Ile;
+
 }
 
 /* Pokazanie zawartosci listy */
