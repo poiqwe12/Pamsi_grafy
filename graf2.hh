@@ -32,10 +32,10 @@ class MacierzSasiedztwa
     int value_V, value_E;                  // Ilosc krawedzi i wierzchołków
     int max_V;                             // Maxmalna ilosc bez alkowania pamieci
     bool Skierowany;                       // Czy graf jest skierowanyc czy nie
-    Lista<Wierzcholek<Typ> > L_Wierzcholek; // Lista przechowujaca wierzcholki
+    Lista<Wierzcholek <Typ> > L_Wierzcholek; // Lista przechowujaca wierzcholki
 
   public:
-    MacierzSasiedztwa( bool S);
+    MacierzSasiedztwa(bool S);
     ~MacierzSasiedztwa();
     void IncidentEdges(int index_V);                       // Literowanie poloczonych wierzchołków
     bool AreAdjacent(int index_V1, int index_V2);          // CZy dwa wierzchołki sa połaczone
@@ -43,13 +43,14 @@ class MacierzSasiedztwa
     bool InsertEdge(int index_V1, int index_V2, double w); // Dodaje krawedz o wadze w
     bool RemoveVertex(int index_V);                        // Usuwa wierzchołek i jego krawedzie
     bool RemoveEdge(int index_V1, int index_V2);           // Usuwa krawedz
+    void ShowTime();
 };
 
 /* Konstruktor */
 template <typename Typ>
-MacierzSasiedztwa<Typ>::MacierzSasiedztwa( bool S)
+MacierzSasiedztwa<Typ>::MacierzSasiedztwa(bool S)
 {
-    max_V = 250;
+    max_V = 25;
     value_V = 0;
     Skierowany = S;
     tab = new Krawedz<Typ> **[max_V];
@@ -87,12 +88,70 @@ MacierzSasiedztwa<Typ>::~MacierzSasiedztwa()
 template <typename Typ>
 bool MacierzSasiedztwa<Typ>::InsertVertex(Typ Objekt)
 {
-    Wierzcholek<Typ> wierz;
-    ++value_V;
+    Wierzcholek<Typ> wierz;                         // Tworzy wierzcholek daje mu kolejny index
+    ++value_V;                                      // oraz dodaje go do listy wierzchołków
     wierz.index = value_V;
-    wierz.zawartosc = Objekt;
-    L_Wierzcholek.Dodaj_Element(wierz,0);
-     return true;
+    wierz.zawartosc = Objekt;   
+    L_Wierzcholek.Dodaj_Element(wierz, 0);
+    return true;
 }
+
+/* Dodawanie krawedzi */
+template <typename Typ>
+bool MacierzSasiedztwa<Typ>::InsertEdge(int index_V1, int index_V2, double w)
+{
+    if (Skierowany) //Procedura dla grafu skierowanego
+    {
+        tab[index_V1][index_V2] = new Krawedz<Typ>;                        // Tworzenie krawedzi
+        (tab[index_V1][index_V2])->wsk_1 = &(L_Wierzcholek[index_V1 - 1]); // Dodanie łączących wierzchołków do krawedzi
+        (tab[index_V1][index_V2])->wsk_1 = &(L_Wierzcholek[index_V2 - 1]);
+        (tab[index_V1][index_V2])->waga = w;
+    }
+    else // Procedura dla grafu nieskierowanego
+    {
+        tab[index_V1][index_V2] = new Krawedz<Typ>;                        // Tworzenie krawedzi
+        (tab[index_V1][index_V2])->wsk_1 = &(L_Wierzcholek[index_V1 - 1]); // Dodanie łączących wierzchołków do krawedzi
+        (tab[index_V1][index_V2])->wsk_1 = &(L_Wierzcholek[index_V2 - 1]); // Jak jest nieskierowany dodaje ten sam wskaznik
+        tab[index_V2][index_V1] = tab[index_V1][index_V2];                 // krawedzi do drugiej pozycji w macierzy 
+        (tab[index_V1][index_V2])->waga = w;
+    }
+    return true;
+}
+
+/* Wyswietlanie macierzy sasiedztwa */
+template <typename Typ>
+void MacierzSasiedztwa<Typ>::ShowTime()
+{
+    cout << "   ";
+    for (int i = 0; i < max_V; i++)
+    {
+        cout << setw(3) << i;
+    }
+    cout << endl
+         << endl;
+    for (int i = 0; i < max_V; i++)
+    {
+        cout << setw(2) << i << "|";
+        for (int j = 0; j < max_V; j++)
+        {   
+            if(tab[i][j]==NULL)
+            {
+                cout << setw(3) << "N";
+            }
+            else
+            {
+            cout << setw(3) << (tab[i][j])->waga;
+        }
+        }
+        cout << endl;
+    }
+}
+
+
+
+
+
+
+
 
 #endif
