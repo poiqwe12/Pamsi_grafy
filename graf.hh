@@ -1,14 +1,18 @@
+#ifndef GRAF_HH
+#define GRAF_HH
+
+
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
-
+#include "lista.hh"
 using namespace std;
 
 class Graf
 {
     int **tab;
     int value_V, value_E;
-
+    
   public:
     Graf(int V);
     ~Graf();
@@ -133,3 +137,5 @@ std::ostream &operator<<(std::ostream &stream, Graf &G)
 
     return stream;
 }
+
+#endif

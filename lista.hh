@@ -1,3 +1,6 @@
+#ifndef LISTA_HH
+#define LISTA_HH
+
 #include <iostream>
 using namespace std;
 template <typename Typ>
@@ -49,6 +52,7 @@ class Lista
     void Dodaj_Element(Typ T, int nr);
     Typ Usun_Element(int nr);
     void Show();
+    Typ &operator[](unsigned int index);
 };
 
 /*  Konstruktor */
@@ -63,7 +67,7 @@ Lista<Typ>::Lista()
 template <typename Typ>
 Lista<Typ>::~Lista()
 {
-    for(int i = Ile;i>0;--i)
+    for (int i = Ile; i > 0; --i)
     {
         Usun_Element(0);
     }
@@ -76,15 +80,15 @@ void Lista<Typ>::Dodaj_Element(Typ T, int nr)
     Element<Typ> *el = Start;
     Element<Typ> *nowy_el = new Element<Typ>();
     nowy_el->Set_Zawartosc(T);
-    if(nr==0)
+    if (nr == 0)
     {
-    nowy_el->Set_Poprzedni(NULL);
-    nowy_el->Set_Nastepmny(Start);
-    if (Start != NULL)
-    {
-        Start->Set_Poprzedni(nowy_el);
-    }
-    Start = nowy_el;
+        nowy_el->Set_Poprzedni(NULL);
+        nowy_el->Set_Nastepmny(Start);
+        if (Start != NULL)
+        {
+            Start->Set_Poprzedni(nowy_el);
+        }
+        Start = nowy_el;
     }
     else
     {
@@ -94,22 +98,20 @@ void Lista<Typ>::Dodaj_Element(Typ T, int nr)
         }
         else
         {
-            for (int i = nr-1; i > 0; --i)
+            for (int i = nr - 1; i > 0; --i)
             {
                 el = el->Get_Nastepny();
             }
             nowy_el->Set_Poprzedni(el);
             nowy_el->Set_Nastepmny(el->Get_Nastepny());
-            if(el->Get_Nastepny()!=NULL)
+            if (el->Get_Nastepny() != NULL)
             {
                 el->Get_Nastepny()->Set_Poprzedni(nowy_el);
             }
             el->Set_Nastepmny(nowy_el);
         }
-
     }
     ++Ile;
-
 }
 
 /* Pokazanie zawartosci listy */
@@ -133,26 +135,26 @@ Typ Lista<Typ>::Usun_Element(int nr)
     Typ T;
     if (nr == 0)
     {
-        if(el!=NULL)
+        if (el != NULL)
         {
-           if (el->Get_Nastepny() == NULL) ///Sprawdzam czy nastepny element nie jest ostanim
+            if (el->Get_Nastepny() == NULL) ///Sprawdzam czy nastepny element nie jest ostanim
             {
-                Start=NULL;
+                Start = NULL;
                 T = el->Get_Zawartosc();
                 delete el;
             }
             else
             {
-                  Start = el->Get_Nastepny();
-                  Start->Set_Poprzedni(NULL);
-                  T = el->Get_Zawartosc();
+                Start = el->Get_Nastepny();
+                Start->Set_Poprzedni(NULL);
+                T = el->Get_Zawartosc();
                 delete el;
-            } 
+            }
             --Ile;
         }
         else
         {
-            cout<<"Lista pusta!!";
+            cout << "Lista pusta!!";
         }
     }
     else
@@ -191,3 +193,20 @@ Typ Lista<Typ>::Usun_Element(int nr)
     }
     return T;
 }
+/* Przeciazenia operatorów [] */
+template <typename Typ>
+Typ &Lista<Typ>::operator[](unsigned int index)
+{
+    Element<Typ> *el = Start;
+    if (index <= Ile)
+    {
+        for (int i = index ; i > 0; --i)
+        {
+            el = el->Get_Nastepny();
+        }
+        return el->Get_Zawartosc();
+    }
+    exit(EXIT_FAILURE);
+}
+
+#endif
