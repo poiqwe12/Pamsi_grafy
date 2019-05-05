@@ -283,8 +283,7 @@ void Shift_Down(int *koszty, int *kopiec, int *pol_wierz, int index_parent, int 
     if (koszty[pol_wierz[index_Swap]] < koszty[pol_wierz[index_parent]])
     {
         Swap(kopiec[index_Swap], kopiec[index_parent]);
-        pol_wierz[kopiec[index_parent]] = index_parent;
-        pol_wierz[kopiec[index_Swap]] = index_Swap;
+        Swap(pol_wierz[index_Swap],pol_wierz[index_parent]);
         Shift_Down(koszty, kopiec, pol_wierz, index_Swap, size);
     }
 }
@@ -301,7 +300,7 @@ void algorytm_Dijkstery(MacierzSasiedztwa<Typ> &M)
     int pol_wierz_w_kopcu[M.value_V];
     int dlugosc = M.value_V;
     int nieszkonczonosc = 100;
-    int korzen; // inne mao znaczace zmienne
+    int korzen,cos; // inne mao znaczace zmienne
     for (int i = 0; i < M.value_V; ++i)
     {
         zbior_S[i] = false;
@@ -319,27 +318,40 @@ void algorytm_Dijkstery(MacierzSasiedztwa<Typ> &M)
 
      for(int i =0;i<M.value_V;++i)
     {
+        /*
         korzen = kopiec_index[0]; // W korzeniu jest (index) koszt najmniejszy
         Swap(kopiec_index[0],kopiec_index[--dlugosc]);
-        pol_wierz_w_kopcu[kopiec_index[0]]=0;
+        Swap(pol_wierz_w_kopcu[0],pol_wierz_w_kopcu[dlugosc]);
         for (int j = (M.value_V / 2) - 1; j >= 0; --j)
        {
             Shift_Down(koszty_dojscia, kopiec_index, pol_wierz_w_kopcu, j, dlugosc);
         }
         
         cout<<" Korzen: "<<koszty_dojscia[korzen]<<endl;       
+*/      
+cos=nieszkonczonosc;
+for(int q=0 ;q<M.value_V;q++)
+{
+    if((zbior_S[q]==false) && (koszty_dojscia[q]<cos))
+    {
+        cout<<"A";
+        korzen=q;
+        cos=koszty_dojscia[q];
+    }
+}
+        cout<<" Korzen: "<<koszty_dojscia[korzen]<<endl;       
 
         zbior_S[korzen] = true;
 
       for (int k = 0; k < M.value_V; ++k) // lece po wszystkich wierzcholkach
         {
-            if (M.tab[k][korzen] != NULL) // jezeli jest sasiadem
+            if (M.tab[korzen][k] != NULL) // jezeli jest sasiadem
             {
                 if (!zbior_S[k]) // Jezeli nalezy do zbioru   Q
                 {                 
-                         if(koszty_dojscia[k]>(koszty_dojscia[korzen]+(M.tab[k][korzen])->waga))
+                         if(koszty_dojscia[k]>(koszty_dojscia[korzen]+(M.tab[korzen][k])->waga))
                        {
-                             koszty_dojscia[k]=koszty_dojscia[korzen]+(M.tab[k][korzen])->waga;
+                             koszty_dojscia[k]=koszty_dojscia[korzen]+(M.tab[korzen][k])->waga;
                              poprzednicy[k]=korzen;
                          }
                 }
