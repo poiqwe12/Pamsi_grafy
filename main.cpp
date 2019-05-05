@@ -29,11 +29,13 @@ int main()
     //     cout<<endl;
     // }
     // }
-    MacierzSasiedztwa<double> c(0,25);
+    MacierzSasiedztwa<double> c(1,0);
     char *a=(char*)"dane.txt";
-    c.Inicjuj(0);
-    cout<<endl<<endl;
+    c.WczytajZPliku(a);
     c.ShowTime();
+    cout<<endl<<endl;
+    algorytm_Dijkstery(c);
+    //c.ShowTime();
 
 
     return 0;
