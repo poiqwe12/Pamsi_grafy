@@ -1,6 +1,7 @@
 #ifndef GRAF2_HH
 #define GRAF2_HH
 
+#include <fstream>
 #include "lista.hh"
 #include <iostream>
 #include <iomanip>
@@ -21,7 +22,7 @@ struct Krawedz
 {
     Wierzcholek<Typ> *wsk_1; // Wskazniki na wierzchołki
     Wierzcholek<Typ> *wsk_2; // łączące sie z dana krawedzią
-    double waga;    
+    double waga;
 };
 
 /* Definicja grafu  */
@@ -30,12 +31,12 @@ class MacierzSasiedztwa
 {
     Krawedz<Typ> ***tab;                   // Macierz sasiedztwa
     int value_V, value_E;                  // Ilosc krawedzi i wierzchołków
-    int max_V,start_V;                             // Maxmalna ilosc bez alkowania pamieci
+    int max_V, start_V;                    // Maxmalna ilosc bez alkowania pamieci
     bool Skierowany;                       // Czy graf jest skierowanyc czy nie
     Lista<Wierzcholek<Typ> > L_Wierzcholek; // Lista przechowujaca wierzcholki
 
   public:
-    MacierzSasiedztwa(bool S);
+    MacierzSasiedztwa(bool S, int ile_wierz);
     ~MacierzSasiedztwa();
     void IncidentEdges(int index_V);                       // Literowanie poloczonych wierzchołków
     bool AreAdjacent(int index_V1, int index_V2);          // CZy dwa wierzchołki sa połaczone
@@ -44,14 +45,16 @@ class MacierzSasiedztwa
     bool RemoveVertex(int index_V);                        // Usuwa wierzchołek i jego krawedzie
     bool RemoveEdge(int index_V1, int index_V2);           // Usuwa krawedz
     void ShowTime();                                       // Wyswietla macierz sasiedztwa
-    bool WczytajZPliku(char *nazwa_plik);
+    bool WczytajZPliku(char *nazwa_plik);                  // Wczytuje graf z pliku
+    void Inicjuj(int index);                               // Inicjuje graf o okreslonej gestosci
+     template<typename T>void friend algorytm_Dijkstery(MacierzSasiedztwa<T> &M);
 };
 
 /* Konstruktor */
 template <typename Typ>
-MacierzSasiedztwa<Typ>::MacierzSasiedztwa(bool S)
+MacierzSasiedztwa<Typ>::MacierzSasiedztwa(bool S, int ile_wierz)
 {
-    max_V = 15;
+    max_V = 40;
     value_V = 0;
     Skierowany = S;
     tab = new Krawedz<Typ> **[max_V];
@@ -66,6 +69,12 @@ MacierzSasiedztwa<Typ>::MacierzSasiedztwa(bool S)
             tab[i][j] = NULL;
         }
     }
+    double a;
+    for (int i = 0; i < ile_wierz; ++i)
+    {
+        InsertVertex(a);
+    }
+    value_V = ile_wierz;
 }
 
 /* Destruktor */
@@ -159,40 +168,133 @@ void MacierzSasiedztwa<Typ>::ShowTime()
     }
 }
 /* Wczytywanie danych z pliku */
-template<typename Typ>
+template <typename Typ>
 bool MacierzSasiedztwa<Typ>::WczytajZPliku(char *nazwa_pliku)
 {
-    /*
+    double a; // Cos co przechowuje wierzchołek
+    int V, E, start;
+    int krawedz_1, krawedz_2, waga_s;
     fstream plik;
-    plik.open(nazwa_pliku,std::ios::in|std::ios::out);
-    if(plik.good()==true)
+    plik.open(nazwa_pliku, std::ios::in | std::ios::out);
+    if (plik.good() == true)
     {
-        //Typ a;
-        plik>>value_E>>value_V>>start_V;
-        for(int i =0;i<value_V;++i)
+        plik >> E >> V >> start;
+        cout << " " << E << "   " << V << " " << start;
+        for (int i = 0; i < V; ++i)
         {
-           // InsertVertex(a);
+            InsertVertex(a); // Dodawanie wierzchołków do listy
+        }
+        for (int i = 0; i < E; ++i) // Dodawanie krawedzi do macierzy
+        {
+            plik >> krawedz_1 >> krawedz_2 >> waga_s;
+            InsertEdge(krawedz_1, krawedz_2, waga_s);
         }
 
+        cout << endl;
+        L_Wierzcholek.Show();
         plik.close();
     }
-    */
     return true;
 }
 
-
-
-
 /* Przeciazenie operatora wyswietlania dla Wierzcholka */
-template<typename Typ>
+template <typename Typ>
 std::ostream &operator<<(std::ostream &stream, Wierzcholek<Typ> &W)
 {
-    stream<<W.index;
+    stream << W.index;
     return stream;
 }
 
+/* Inicjajcja grafu */
+template <typename Typ>
+void MacierzSasiedztwa<Typ>::Inicjuj(int index)
+{
+    srand(time(NULL));
+    int E;
+    int k, l, m;
+    switch (index)
+    {
+    case 0:
+        value_E = value_V * (value_V - 1) / 2;
+        break;
+    case 1:
+        value_E = value_V * (value_V - 1) * 3 / 8;
+        break;
+    case 2:
+        value_E = value_V * (value_V - 1) / 4;
+        break;
+    case 3:
+        value_E = value_V * (value_V - 1) / 8;
+        break;
+    default:
+        break;
+    }
+    E = value_E; /// Ilosc krawedzi wyznaczona z gestosci
+    while (E > 0)
+    {
+        k = rand() % value_V; /// Losowanie miejsca na krawedz
+        l = rand() % value_V;
+        m = rand() % 99 + 1;
+        if (l < k)
+        {
+            if (tab[l][k] == NULL)
+            {
+                InsertEdge(l, k, m);
+                E--;
+            }
+        }
+    }
+}
+template<typename Typ>
+void algorytm_Dijkstery(MacierzSasiedztwa<Typ> &M)
+{
+    bool zbior_S[M.value_V];                    // Jesli true to nalezy do Q, jesli false to do S
+    int koszty_dojscia[M.value_V];              // wiadomo
+    int poprzednicy[M.value_V];                 // Przechowouje index poprzednika wierzcholka
+                                                // o najmniejszym koszcie, jezelirowna sie -1 to nie ma drogi 
+    int kopiec_index[M.value_V];
+    int pol_wierz_w_kopcu[M.value_V];
+    int dlugosc;
+    int nieszkonczonosc= 1000000;
+    for(int i =0;i<M.value_V;++i)
+    {
+        zbior_S[i]=false;
+        koszty_dojscia[i]=nieszkonczonosc;
+        poprzednicy[i]=-1;
+    }
+    koszty_dojscia[M.start_V]=0;                 // Wierzchołek startowy ma koszt dojscia 0;
 
+    
+    
+}
 
+/*
 
+    int index_L = 2 * index_parent + 1;
+    int index_R = 2 * index_parent + 2;
+    int index_Swap = index_parent;
 
+    if (index_R < size)
+    {
+        if (D[index_R] > D[index_L])
+        {
+            index_Swap = index_R;
+        }
+        else
+        {
+            index_Swap = index_L;
+        }
+    }
+    else
+    {
+        if (index_L < size)
+            index_Swap = index_L;
+    }
+
+    if (D[index_Swap] > D[index_parent])
+    {
+        Swap(D[index_Swap], D[index_parent]);
+        Shift_Down(D, index_Swap, size);
+    }
+*/
 #endif

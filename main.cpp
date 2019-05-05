@@ -29,20 +29,11 @@ int main()
     //     cout<<endl;
     // }
     // }
-    double w =1.12;
-    Krawedz<double> a;
-    Wierzcholek<double> b;
-    MacierzSasiedztwa<double> c(0);
-   for (int i = 0; i < 10; ++i)
-     {
-     c.InsertVertex(7.2);
-    c.InsertVertex(1.2);
-     }
-   c.InsertVertex(7.2);
-    c.InsertVertex(1.2);
-    c.InsertEdge(3,0,w);
+    MacierzSasiedztwa<double> c(0,25);
+    char *a=(char*)"dane.txt";
+    c.Inicjuj(0);
+    cout<<endl<<endl;
     c.ShowTime();
-
 
 
     return 0;
