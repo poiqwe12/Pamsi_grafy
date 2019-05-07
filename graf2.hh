@@ -55,10 +55,10 @@ class MacierzSasiedztwa
 template <typename Typ>
 MacierzSasiedztwa<Typ>::MacierzSasiedztwa(bool S, int ile_wierz)
 {
-    max_V = 20;
+    max_V = 2000;
     value_V = 0;
     Skierowany = S;
-    start_V = 2;
+    start_V = 0;
     tab = new Krawedz<Typ> **[max_V];
     for (int i = 0; i < max_V; ++i)
     {
@@ -198,9 +198,9 @@ bool MacierzSasiedztwa<Typ>::WczytajZPliku(char *nazwa_pliku)
             plik >> krawedz_1 >> krawedz_2 >> waga_s;
             InsertEdge(krawedz_1, krawedz_2, waga_s);
         }
-        value_E=E;
-        value_V=V;
-        start_V=start;
+        value_E = E;
+        value_V = V;
+        start_V = start;
         //cout << endl;
         // L_Wierzcholek.Show();
         plik.close();
@@ -226,10 +226,10 @@ void MacierzSasiedztwa<Typ>::Inicjuj(int index)
     switch (index)
     {
     case 0:
-        value_E = value_V * (value_V - 1) / 2;
+        value_E = value_V * (value_V - 1) ;
         break;
     case 1:
-        value_E = value_V * (value_V - 1) * 3 / 8;
+        value_E = value_V * (value_V - 1) /2;
         break;
     case 2:
         value_E = value_V * (value_V - 1) / 4;
@@ -240,13 +240,20 @@ void MacierzSasiedztwa<Typ>::Inicjuj(int index)
     default:
         break;
     }
-    E = value_E; /// Ilosc krawedzi wyznaczona z gestosci
+    if(Skierowany)   
+    {
+        E = value_E; /// Ilosc krawedzi wyznaczona z gestosci
+    }
+    else
+    {
+        E=value_E/2;
+    }
     while (E > 0)
     {
         k = rand() % value_V; /// Losowanie miejsca na krawedz
         l = rand() % value_V;
-        m = rand() % 99 + 1;
-        if (l < k)
+        m = rand() % value_V + 1;
+        if (l != k)
         {
             if (tab[l][k] == NULL)
             {
@@ -283,7 +290,7 @@ void Shift_Down(int *koszty, int *kopiec, int *pol_wierz, int index_parent, int 
     if (koszty[pol_wierz[index_Swap]] < koszty[pol_wierz[index_parent]])
     {
         Swap(kopiec[index_Swap], kopiec[index_parent]);
-        Swap(pol_wierz[index_Swap],pol_wierz[index_parent]);
+        Swap(pol_wierz[index_Swap], pol_wierz[index_parent]);
         Shift_Down(koszty, kopiec, pol_wierz, index_Swap, size);
     }
 }
@@ -292,80 +299,73 @@ void Shift_Down(int *koszty, int *kopiec, int *pol_wierz, int index_parent, int 
 template <typename Typ>
 void algorytm_Dijkstery(MacierzSasiedztwa<Typ> &M)
 {
+    Lista<int> Stos;               // Potrzebny do wyswietlania
     bool zbior_S[M.value_V];       // Jesli true to nalezy do Q, jesli false to do S
     int koszty_dojscia[M.value_V]; // wiadomo
     int poprzednicy[M.value_V];    // Przechowouje index poprzednika wierzcholka
                                    // o najmniejszym koszcie, jezelirowna sie -1 to nie ma drogi
-    int kopiec_index[M.value_V];
-    int pol_wierz_w_kopcu[M.value_V];
     int dlugosc = M.value_V;
-    int nieszkonczonosc = 100;
-    int korzen,cos; // inne mao znaczace zmienne
+    int nieszkonczonosc = 10000000;
+    int korzen, cos; // inne mao znaczace zmienne
     for (int i = 0; i < M.value_V; ++i)
     {
         zbior_S[i] = false;
         koszty_dojscia[i] = nieszkonczonosc;
         poprzednicy[i] = -1;
-        kopiec_index[i] = i;
-        pol_wierz_w_kopcu[i] = i;
     }
-    koszty_dojscia[M.start_V] = 0; // Wierzchołek startowy ma koszt dojscia 0;
-                                   // Ustawiamy wlasnosc kopca po dodaniu kosztu dojscia
-    kopiec_index[0] = M.start_V;
-    kopiec_index[M.start_V] = 0;
-    pol_wierz_w_kopcu[0] = M.start_V;
-    pol_wierz_w_kopcu[M.start_V] = 0;
-
-     for(int i =0;i<M.value_V;++i)
+    koszty_dojscia[M.start_V] = 0; // Wierzchołek startowy ma koszt dojscia 0
+    for (int i = 0; i < M.value_V; ++i)
     {
-        /*
-        korzen = kopiec_index[0]; // W korzeniu jest (index) koszt najmniejszy
-        Swap(kopiec_index[0],kopiec_index[--dlugosc]);
-        Swap(pol_wierz_w_kopcu[0],pol_wierz_w_kopcu[dlugosc]);
-        for (int j = (M.value_V / 2) - 1; j >= 0; --j)
-       {
-            Shift_Down(koszty_dojscia, kopiec_index, pol_wierz_w_kopcu, j, dlugosc);
+        cos = nieszkonczonosc;
+        for (int q = 0; q < M.value_V; q++)
+        {
+            if ((zbior_S[q] == false) && (koszty_dojscia[q] < cos))
+            {
+                korzen = q;
+                cos = koszty_dojscia[q];
+            }
         }
-        
-        cout<<" Korzen: "<<koszty_dojscia[korzen]<<endl;       
-*/      
-cos=nieszkonczonosc;
-for(int q=0 ;q<M.value_V;q++)
-{
-    if((zbior_S[q]==false) && (koszty_dojscia[q]<cos))
-    {
-        cout<<"A";
-        korzen=q;
-        cos=koszty_dojscia[q];
-    }
-}
-        cout<<" Korzen: "<<koszty_dojscia[korzen]<<endl;       
-
         zbior_S[korzen] = true;
-
-      for (int k = 0; k < M.value_V; ++k) // lece po wszystkich wierzcholkach
+        for (int k = 0; k < M.value_V; ++k) // lece po wszystkich wierzcholkach
         {
             if (M.tab[korzen][k] != NULL) // jezeli jest sasiadem
             {
                 if (!zbior_S[k]) // Jezeli nalezy do zbioru   Q
-                {                 
-                         if(koszty_dojscia[k]>(koszty_dojscia[korzen]+(M.tab[korzen][k])->waga))
-                       {
-                             koszty_dojscia[k]=koszty_dojscia[korzen]+(M.tab[korzen][k])->waga;
-                             poprzednicy[k]=korzen;
-                         }
+                {
+                    if (koszty_dojscia[k] > (koszty_dojscia[korzen] + (M.tab[korzen][k])->waga))
+                    {
+                        koszty_dojscia[k] = koszty_dojscia[korzen] + (M.tab[korzen][k])->waga;
+                        poprzednicy[k] = korzen;
+                    }
                 }
             }
         }
     }
-    
-    for (int t = 0; t < M.value_V; t++)
+    cout << "------------------------------" << endl;
+    int dl = 0;
+    for (int i = 0; i < M.value_V; ++i)
     {
-        cout << koszty_dojscia[t] << "  " << t << endl;
-    }
-    for (int t = 0; t < M.value_V; t++)
-    {
-        cout << poprzednicy[t] << "  " << t << endl;
+        dl = 0;
+        for (int q = i; q >= 0; q = poprzednicy[q])
+        {
+            dl++;
+            Stos.Dodaj_Element(q, 0);
+        }
+        cout << "Nr wierz: " << i << "|\tKoszt dojscia: ";
+        if (koszty_dojscia[i] != nieszkonczonosc)
+        {
+            cout  << koszty_dojscia[i] << "\t\tkolejnosc ";
+        }
+        else
+        {
+            cout << "inf" << "\t\tkolejnosc: ";
+        }
+        for (int s = dl; dl > 0; --dl)
+        {
+            cout << "" << Stos.Usun_Element(0) << "  ";
+        }
+        cout<<endl;
+        
     }
 }
 

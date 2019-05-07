@@ -3,6 +3,7 @@
 #include "graf2.hh"
 int main()
 {
+    
     // for (int j = 7; j < 10; j++)
     // {
     //     Graf G(j);
@@ -29,10 +30,11 @@ int main()
     //     cout<<endl;
     // }
     // }
-    MacierzSasiedztwa<double> c(1,0);
+    MacierzSasiedztwa<double> c(1,1000);
     char *a=(char*)"dane.txt";
-    c.WczytajZPliku(a);
-    c.ShowTime();
+    //c.WczytajZPliku(a);
+    c.Inicjuj(3);
+    //c.ShowTime();
     cout<<endl<<endl;
     algorytm_Dijkstery(c);
     //c.ShowTime();
