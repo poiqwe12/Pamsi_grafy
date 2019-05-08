@@ -68,8 +68,6 @@ ListaSasiedztwa<Typ>::ListaSasiedztwa(bool s, int V)
 template <typename Typ>
 ListaSasiedztwa<Typ>::~ListaSasiedztwa()
 {
-    L_wierzcholek.~Lista();
-    L_krawedz.~Lista();
     delete[] L_incydencji;
 }
 /* Dodawanie wierzcholka */
@@ -81,7 +79,9 @@ bool ListaSasiedztwa<Typ>::InsertVertex(Typ Objekt)
     wierz.index = value_V++;
     wierz.zawartosc = Objekt;
     
-        L_wierzcholek.Dodaj_Element(wierz, value_V-1);
+    //cout<<" val: "<<value_V<<endl;
+    //cout<<"L_wierzcholek: "<<L_wierzcholek.Ile<<endl;
+        L_wierzcholek.Dodaj_Element(wierz, L_wierzcholek.Ile);
     
     return true;
 }

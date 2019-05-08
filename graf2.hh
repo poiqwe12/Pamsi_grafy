@@ -49,6 +49,8 @@ class MacierzSasiedztwa
     void Inicjuj(int index);                               // Inicjuje graf o okreslonej gestosci
     template <typename T>
     void friend algorytm_Dijkstery(MacierzSasiedztwa<T> &M);
+      template <typename T>
+    void friend algorytm_Dijkstery_zapisz_do_pliku(MacierzSasiedztwa<T> &M);
 };
 
 /* Konstruktor */
@@ -313,7 +315,7 @@ void algorytm_Dijkstery_zapisz_do_pliku(MacierzSasiedztwa<Typ> &M)
         }
     }
     std::fstream plik;
-    plik.open( "wynik_macierz.txt", std::ios::in | std::ios::out );
+    plik.open( "wynik_macierz.txt",  std::ios_base::app );
     if( plik.good() == true )
     {
     plik << "------------------------------" << endl;

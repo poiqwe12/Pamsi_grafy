@@ -44,9 +44,11 @@ template <typename Typ>
 class Lista
 {
     Element<Typ> *Start;
-    int Ile;
+   // int Ile;
 
   public:
+      int Ile;
+
     Lista();
     ~Lista();
     void Dodaj_Element(Typ T, int nr);
