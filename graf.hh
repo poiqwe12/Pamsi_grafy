@@ -55,7 +55,7 @@ ListaSasiedztwa<Typ>::ListaSasiedztwa(bool s, int V)
     Skierowany = s;
     value_E = 0;
     start_V = 0;
-    max_V = 1001;
+    max_V = 2000;
      double a;
     for (int i = 0; i < V; ++i)
     {
@@ -68,6 +68,8 @@ ListaSasiedztwa<Typ>::ListaSasiedztwa(bool s, int V)
 template <typename Typ>
 ListaSasiedztwa<Typ>::~ListaSasiedztwa()
 {
+    L_wierzcholek.~Lista();
+    L_krawedz.~Lista();
     delete[] L_incydencji;
 }
 /* Dodawanie wierzcholka */
@@ -78,14 +80,9 @@ bool ListaSasiedztwa<Typ>::InsertVertex(Typ Objekt)
                              // oraz dodaje go do listy wierzchołków
     wierz.index = value_V++;
     wierz.zawartosc = Objekt;
-    if (value_V < max_V)
-    {
+    
         L_wierzcholek.Dodaj_Element(wierz, value_V-1);
-    }
-    else
-    {
-        cout << "1!";
-    }
+    
     return true;
 }
 /* Dodawanie krawedzi */
@@ -196,7 +193,7 @@ std::ostream &operator<<(std::ostream &stream, Krawedz2<Typ> *W )
     return stream;
 }
 template <typename Typ>
-void algorytm_Dijkstery(ListaSasiedztwa<Typ> &M)
+void algorytm_Dijkstery_zapisz_do_pliku(ListaSasiedztwa<Typ> &M)
 {
     Lista<int> Stos;               // Potrzebny do wyswietlania
     bool zbior_S[M.value_V];       // Jesli true to nalezy do Q, jesli false to do S
@@ -226,8 +223,7 @@ void algorytm_Dijkstery(ListaSasiedztwa<Typ> &M)
         }
         zbior_S[korzen] = true;
         for (int k = 0; k < M.L_incydencji[korzen].Ile; ++k) // lece po wszystkich wierzcholkach
-        {
-           
+        {     
                 if (!zbior_S[ M.L_incydencji[korzen][k]->wsk2->index]) // Jezeli nalezy do zbioru   Q
                 {
                     if (koszty_dojscia[ M.L_incydencji[korzen][k]->wsk2->index] > koszty_dojscia[korzen] + ( M.L_incydencji[korzen][k]->waga))
@@ -235,11 +231,14 @@ void algorytm_Dijkstery(ListaSasiedztwa<Typ> &M)
                         koszty_dojscia[ M.L_incydencji[korzen][k]->wsk2->index] = koszty_dojscia[korzen] +  M.L_incydencji[korzen][k]->waga;
                         poprzednicy[ M.L_incydencji[korzen][k]->wsk2->index] = korzen;
                     }
-                }
-           
+                }           
         }
     }
-    cout << "------------------------------" << endl;
+ std::fstream plik;
+    plik.open( "wynik_lista.txt", std::ios::in | std::ios::out );
+    if( plik.good() == true )
+    {
+    plik << "------------------------------" << endl;
     int dl = 0;
     for (int i = 0; i < M.value_V; ++i)
     {
@@ -249,21 +248,24 @@ void algorytm_Dijkstery(ListaSasiedztwa<Typ> &M)
             dl++;
             Stos.Dodaj_Element(q, 0);
         }
-        cout << "Nr wierz: " << i << "|\tKoszt dojscia: ";
+        plik << "Nr wierz: " << i << "|\tKoszt dojscia: ";
         if (koszty_dojscia[i] != nieszkonczonosc)
         {
-            cout  << koszty_dojscia[i] << "\t\tkolejnosc ";
+            plik  << koszty_dojscia[i] << "\t\tkolejnosc ";
         }
         else
         {
-            cout << "inf" << "\t\tkolejnosc: ";
+            plik << "inf" << "\t\tkolejnosc: ";
         }
         for (int s = dl; dl > 0; --dl)
         {
-            cout << "" << Stos.Usun_Element(0) << "  ";
+            plik << "" << Stos.Usun_Element(0) << "  ";
         }
-        cout<<endl;
+        plik<<endl;
         
+    }
+            plik.close();
+
     }
 }
 /* Wczytywanie danych z pliku */
@@ -298,4 +300,50 @@ bool ListaSasiedztwa<Typ>::WczytajZPliku(char *nazwa_pliku)
     return true;
 }
 
+
+
+
+template <typename Typ>
+void algorytm_Dijkstery(ListaSasiedztwa<Typ> &M)
+{
+    Lista<int> Stos;               // Potrzebny do wyswietlania
+    bool zbior_S[M.value_V];       // Jesli true to nalezy do Q, jesli false to do S
+    int koszty_dojscia[M.value_V]; // wiadomo
+    int poprzednicy[M.value_V];    // Przechowouje index poprzednika wierzcholka
+                                   // o najmniejszym koszcie, jezelirowna sie -1 to nie ma drogi
+    int dlugosc = M.value_V;
+    int nieszkonczonosc = 10000000;
+    int korzen, cos; // inne mao znaczace zmienne
+    for (int i = 0; i < M.value_V; ++i)
+    {
+        zbior_S[i] = false;
+        koszty_dojscia[i] = nieszkonczonosc;
+        poprzednicy[i] = -1;
+    }
+    koszty_dojscia[M.start_V] = 0; // Wierzchołek startowy ma koszt dojscia 0
+    for (int i = 0; i < M.value_V; ++i)
+    {
+        cos = nieszkonczonosc;
+        for (int q = 0; q < M.value_V; q++)
+        {
+            if ((zbior_S[q] == false) && (koszty_dojscia[q] < cos))
+            {
+                korzen = q;
+                cos = koszty_dojscia[q];
+            }
+        }
+        zbior_S[korzen] = true;
+        for (int k = 0; k < M.L_incydencji[korzen].Ile; ++k) // lece po wszystkich wierzcholkach
+        {     
+                if (!zbior_S[ M.L_incydencji[korzen][k]->wsk2->index]) // Jezeli nalezy do zbioru   Q
+                {
+                    if (koszty_dojscia[ M.L_incydencji[korzen][k]->wsk2->index] > koszty_dojscia[korzen] + ( M.L_incydencji[korzen][k]->waga))
+                    {
+                        koszty_dojscia[ M.L_incydencji[korzen][k]->wsk2->index] = koszty_dojscia[korzen] +  M.L_incydencji[korzen][k]->waga;
+                        poprzednicy[ M.L_incydencji[korzen][k]->wsk2->index] = korzen;
+                    }
+                }           
+        }
+    }
+}
 #endif

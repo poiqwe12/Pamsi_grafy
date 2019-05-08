@@ -106,6 +106,7 @@ MacierzSasiedztwa<Typ>::~MacierzSasiedztwa()
         delete[] tab[i];
     }
     delete[] tab;
+    //cout<<"A0";
 }
 /* Swap dwoch elementow */
 void Swap(int &T1, int &T2)
@@ -263,39 +264,91 @@ void MacierzSasiedztwa<Typ>::Inicjuj(int index)
         }
     }
 }
-/* Kopcowanie */
-void Shift_Down(int *koszty, int *kopiec, int *pol_wierz, int index_parent, int size)
-{
-    int index_L = 2 * index_parent + 1;
-    int index_R = 2 * index_parent + 2;
-    int index_Swap = index_parent;
 
-    if (index_R < size)
+
+/*  Algorytm Dijkstery   */
+template <typename Typ>
+void algorytm_Dijkstery_zapisz_do_pliku(MacierzSasiedztwa<Typ> &M)
+{
+    Lista<int> Stos;               // Potrzebny do wyswietlania
+    bool zbior_S[M.value_V];       // Jesli true to nalezy do Q, jesli false to do S
+    int koszty_dojscia[M.value_V]; // wiadomo
+    int poprzednicy[M.value_V];    // Przechowouje index poprzednika wierzcholka
+                                   // o najmniejszym koszcie, jezelirowna sie -1 to nie ma drogi
+    int dlugosc = M.value_V;
+    int nieszkonczonosc = 10000000;
+    int korzen, cos; // inne mao znaczace zmienne
+    for (int i = 0; i < M.value_V; ++i)
     {
-        if (koszty[pol_wierz[index_R]] < koszty[pol_wierz[index_L]])
+        zbior_S[i] = false;
+        koszty_dojscia[i] = nieszkonczonosc;
+        poprzednicy[i] = -1;
+    }
+    koszty_dojscia[M.start_V] = 0; // Wierzchołek startowy ma koszt dojscia 0
+    for (int i = 0; i < M.value_V; ++i)
+    {
+        cos = nieszkonczonosc;
+        for (int q = 0; q < M.value_V; q++)
         {
-            index_Swap = index_R;
+            if ((zbior_S[q] == false) && (koszty_dojscia[q] < cos))
+            {
+                korzen = q;
+                cos = koszty_dojscia[q];
+            }
+        }
+        zbior_S[korzen] = true;
+        for (int k = 0; k < M.value_V; ++k) // lece po wszystkich wierzcholkach
+        {
+            if (M.tab[korzen][k] != NULL) // jezeli jest sasiadem
+            {
+                if (!zbior_S[k]) // Jezeli nalezy do zbioru   Q
+                {
+                    if (koszty_dojscia[k] > (koszty_dojscia[korzen] + (M.tab[korzen][k])->waga))
+                    {
+                        koszty_dojscia[k] = koszty_dojscia[korzen] + (M.tab[korzen][k])->waga;
+                        poprzednicy[k] = korzen;
+                    }
+                }
+            }
+        }
+    }
+    std::fstream plik;
+    plik.open( "wynik_macierz.txt", std::ios::in | std::ios::out );
+    if( plik.good() == true )
+    {
+    plik << "------------------------------" << endl;
+    int dl = 0;
+    for (int i = 0; i < M.value_V; ++i)
+    {
+        dl = 0;
+        for (int q = i; q >= 0; q = poprzednicy[q])
+        {
+            dl++;
+            Stos.Dodaj_Element(q, 0);
+        }
+        plik << "Nr wierz: " << i << "|\tKoszt dojscia: ";
+        if (koszty_dojscia[i] != nieszkonczonosc)
+        {
+            plik  << koszty_dojscia[i] << "\t\tkolejnosc ";
         }
         else
         {
-            index_Swap = index_L;
+            plik << "inf" << "\t\tkolejnosc: ";
         }
+        for (int s = dl; dl > 0; --dl)
+        {
+            plik << "" << Stos.Usun_Element(0) << "  ";
+        }
+        plik<<endl;
+        
     }
-    else
-    {
-        if (index_L < size)
-            index_Swap = index_L;
-    }
+            plik.close();
 
-    if (koszty[pol_wierz[index_Swap]] < koszty[pol_wierz[index_parent]])
-    {
-        Swap(kopiec[index_Swap], kopiec[index_parent]);
-        Swap(pol_wierz[index_Swap], pol_wierz[index_parent]);
-        Shift_Down(koszty, kopiec, pol_wierz, index_Swap, size);
     }
 }
 
-/*  Algorytm Dijkstery   */
+
+
 template <typename Typ>
 void algorytm_Dijkstery(MacierzSasiedztwa<Typ> &M)
 {
@@ -340,32 +393,6 @@ void algorytm_Dijkstery(MacierzSasiedztwa<Typ> &M)
                 }
             }
         }
-    }
-    cout << "------------------------------" << endl;
-    int dl = 0;
-    for (int i = 0; i < M.value_V; ++i)
-    {
-        dl = 0;
-        for (int q = i; q >= 0; q = poprzednicy[q])
-        {
-            dl++;
-            Stos.Dodaj_Element(q, 0);
-        }
-        cout << "Nr wierz: " << i << "|\tKoszt dojscia: ";
-        if (koszty_dojscia[i] != nieszkonczonosc)
-        {
-            cout  << koszty_dojscia[i] << "\t\tkolejnosc ";
-        }
-        else
-        {
-            cout << "inf" << "\t\tkolejnosc: ";
-        }
-        for (int s = dl; dl > 0; --dl)
-        {
-            cout << "" << Stos.Usun_Element(0) << "  ";
-        }
-        cout<<endl;
-        
     }
 }
 
