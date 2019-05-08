@@ -55,7 +55,7 @@ class MacierzSasiedztwa
 template <typename Typ>
 MacierzSasiedztwa<Typ>::MacierzSasiedztwa(bool S, int ile_wierz)
 {
-    max_V = 2000;
+    max_V = 1010;
     value_V = 0;
     Skierowany = S;
     start_V = 0;

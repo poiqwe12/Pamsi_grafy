@@ -30,10 +30,26 @@ int main()
     //     cout<<endl;
     // }
     // }
-    MacierzSasiedztwa<double> c(1,1000);
-    char *a=(char*)"dane.txt";
+        char *a=(char*)"dane.txt";
+
+    ListaSasiedztwa<double> v(0,1000);
+    v.Inicjuj(0);
+    //v.WczytajZPliku(a);
+    //v.ShowTime();
+       cout<<"aa1";
+    
+    algorytm_Dijkstery(v);  
+       cout<<"aa2";
+    while(1)
+    {
+        char a;
+        cin>>a;
+        if(a=='a') break;
+    }
+MacierzSasiedztwa<double> c(1,1000);
+  //  char *a=(char*)"dane.txt";
     //c.WczytajZPliku(a);
-    c.Inicjuj(3);
+    c.Inicjuj(0);
     //c.ShowTime();
     cout<<endl<<endl;
     algorytm_Dijkstery(c);
